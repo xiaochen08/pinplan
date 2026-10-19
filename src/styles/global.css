@@ -1,0 +1,496 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   PinPlan 设计系统
+   深色亚克力玻璃：OS 层用 window-vibrancy 的 acrylic，
+   Web 层只做「提亮 + 描边 + 高光」，两层叠加出质感。
+   ============================================================ */
+
+@theme {
+  /* 中性色阶 */
+  --color-ink-950: #0d0e12;
+  --color-ink-900: #14151a;
+  --color-ink-850: #191b21;
+  --color-ink-800: #1f222a;
+  --color-ink-750: #262a33;
+  --color-ink-700: #2e333d;
+  --color-ink-600: #3d434f;
+  --color-ink-500: #565d6b;
+  --color-ink-400: #7c8494;
+  --color-ink-300: #9ca3b2;
+  --color-ink-200: #c3c8d3;
+  --color-ink-100: #e6e8ee;
+
+  /* 状态色 */
+  --color-draft: #8b8d98;
+  --color-doing: #6366f1;
+  --color-done: #34d399;
+  --color-failed: #f87171;
+  --color-parked: #fbbf24;
+  --color-bug: #fb7185;
+
+  /* 强调色（可切换，由 [data-accent] 覆盖） */
+  --color-accent: #6366f1;
+  --color-accent-soft: #818cf8;
+
+  --radius-widget: 18px;
+  --radius-card: 12px;
+
+  --font-sans:
+    'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei UI', 'Microsoft YaHei',
+    system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'Cascadia Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+}
+
+/* ------------------------------------------------------------
+   叠加层工具类
+   为什么不用 Tailwind 原生的 bg-white/8：它会被编译成字面量
+   #ffffff14，换主题时没法反转。这里改成由 --pp-tint 驱动，
+   深浅主题各取白/黑，Tailwind 会自动生成 hover/active/focus 变体。
+   ------------------------------------------------------------ */
+@utility bg-tint-* {
+  background-color: color-mix(in oklab, var(--pp-tint) --value(integer)%, transparent);
+}
+
+@utility border-tint-* {
+  border-color: color-mix(in oklab, var(--pp-tint) --value(integer)%, transparent);
+}
+
+@utility decoration-tint-* {
+  text-decoration-color: color-mix(in oklab, var(--pp-tint) --value(integer)%, transparent);
+}
+
+@utility divide-tint-* {
+  & > :not(:last-child) {
+    border-color: color-mix(in oklab, var(--pp-tint) --value(integer)%, transparent);
+  }
+}
+
+:root {
+  /* 让原生控件（time/date 输入、滚动条、下拉）跟随深色，而不是刺眼的白底 */
+  color-scheme: dark;
+
+  /* 叠加层基色（hover 底、分隔线、描边）：深色主题用白 */
+  --pp-tint: #ffffff;
+
+  --glass-bg-top: rgba(255, 255, 255, 0.055);
+  --glass-bg-bottom: rgba(255, 255, 255, 0.018);
+  --glass-border: rgba(255, 255, 255, 0.085);
+  --glass-border-strong: rgba(255, 255, 255, 0.13);
+  --hairline: rgba(255, 255, 255, 0.06);
+  --shadow-widget:
+    0 28px 64px -16px rgba(0, 0, 0, 0.62), 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+}
+
+/* 强调色主题 —— 设置面板切换 data-accent */
+[data-accent='indigo'] {
+  --color-accent: #6366f1;
+  --color-accent-soft: #818cf8;
+}
+[data-accent='cyan'] {
+  --color-accent: #22d3ee;
+  --color-accent-soft: #67e8f9;
+}
+[data-accent='amber'] {
+  --color-accent: #fb923c;
+  --color-accent-soft: #fdba74;
+}
+[data-accent='violet'] {
+  --color-accent: #a855f7;
+  --color-accent-soft: #c084fc;
+}
+/* Swiss 的信号红 */
+[data-accent='signal'] {
+  --color-accent: #c8102e;
+  --color-accent-soft: #e0294a;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink-100);
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  cursor: default;
+}
+
+/* 可点击的东西一律显示小手。
+   Tailwind 的 preflight 把 button 的 cursor 设成 default，body 也是 default，
+   结果整屏都是箭头，点起来没有"这是可点的"反馈。 */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+[role='tab']:not([aria-disabled='true']),
+[role='menuitem'],
+a[href],
+summary,
+label[for],
+select,
+input[type='checkbox']:not(:disabled),
+input[type='radio']:not(:disabled) {
+  cursor: pointer;
+}
+
+/* 文本框保持 I 形光标，不要被上面的规则带偏 */
+input:not([type='checkbox']):not([type='radio']),
+textarea {
+  cursor: text;
+}
+
+/* 数字等宽，避免进度/计时器跳动 */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* ============================================================
+   玻璃面板
+   ============================================================ */
+
+.glass {
+  /* 注意：这里刻意不设 position —— 否则会覆盖调用处 Tailwind 的 absolute。
+     也刻意不设 backdrop-filter：整窗容器背后是透明 body，模糊不到任何东西，
+     却会让 Chromium 每帧都做一次全窗离屏合成 —— 纯开销。
+     真正需要毛玻璃的浮层请额外加 .glass-blur。
+
+     底色由应用自己铺：有系统模糊时留出透光让亚克力透上来，
+     关闭系统模糊时（[data-glass='none']）改成实底，否则整个窗口会变透明。 */
+  background-color: rgba(19, 20, 25, 0.55);
+  background-image: linear-gradient(180deg, var(--glass-bg-top), var(--glass-bg-bottom));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-widget);
+  box-shadow: var(--shadow-widget);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* 整窗容器：底更透一点，让系统亚克力的模糊透上来 */
+.glass-window {
+  background-color: rgba(19, 20, 25, 0.38);
+}
+
+/* 需要完全不透的浮层（设置面板等） */
+.glass-solid {
+  background-color: rgb(19, 20, 25);
+}
+
+/* 系统模糊关闭后：整窗改实底，否则会变成透明 */
+[data-glass='none'] .glass-window {
+  background-color: rgb(19, 20, 25);
+}
+
+/* 系统模糊关闭后：
+   1) backdrop-filter 已无意义，去掉省性能；
+   2) 必须补上实底 —— 否则浮层只剩 .glass 的 55% 半透明底色，
+      后面的内容会直接透上来（状态菜单、轻提示都踩过这个坑）。 */
+[data-glass='none'] .glass-blur {
+  backdrop-filter: none;
+  background-color: rgb(19, 20, 25);
+}
+
+/* 浮在应用自身内容之上的浮层（轻提示、状态菜单、设置面板）才需要毛玻璃 */
+.glass-blur {
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* 顶部内高光：模拟玻璃受光边缘。
+   用负 z-index 沉到内容之下 —— 这样就不必再给 .glass 的子元素强加 position，
+   否则会覆盖调用处 Tailwind 的 absolute（设置面板遮罩层就是这么被压成 0 高度的）。 */
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.02) 38%,
+    transparent 62%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 极细噪点，消除大面积纯色带来的“塑料感”。
+   不用 mix-blend-mode: overlay —— 那会让整窗每一帧都重新混合一次。 */
+.glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.085;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  z-index: -2;
+}
+
+/* 内嵌卡片 */
+.card {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-card);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.058);
+  border-color: var(--glass-border-strong);
+}
+
+/* 可拖动区域 */
+.drag {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+.no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* ============================================================
+   滚动条
+   ============================================================ */
+
+.scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+.scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  background-clip: content-box;
+}
+
+/* 输入框 */
+input,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  user-select: text;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-ink-500);
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 45%, transparent);
+}
+
+/* 焦点可见性（键盘导航）：柔和的强调色描边，别刺眼 */
+:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-accent) 45%, transparent);
+  outline-offset: 1px;
+}
+
+/* 输入框的焦点态由外层容器表达（.focus-ring），不要再叠一层描边 */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+/* 输入框容器：获得焦点时边框转强调色 + 一圈很淡的外发光 */
+.focus-ring {
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+.focus-ring:focus-within {
+  border-color: color-mix(in oklab, var(--color-accent) 55%, transparent);
+  background-color: rgba(255, 255, 255, 0.055);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 11%, transparent);
+}
+
+/* ============================================================
+   主题 · Swiss Editorial
+   ------------------------------------------------------------
+   米白纸面 / 单一信号红 / 发丝分隔线 / 零圆角 / 无阴影。
+   拉丁字用 HelveticaNeue，中文用思源黑体（Noto Sans SC）。
+   原则：靠字号和字重建立层级，不靠颜色；装饰一律去掉。
+   ============================================================ */
+[data-theme='swiss'] {
+  color-scheme: light;
+
+  /* 叠加层反过来：浅色底上用黑色叠加 */
+  --pp-tint: #14120f;
+
+  /* 中性色阶整体反转，保留一点暖调 */
+  --color-ink-950: #faf8f3;
+  --color-ink-900: #f4f1ea;
+  --color-ink-850: #efebe3;
+  --color-ink-800: #e8e3d9;
+  --color-ink-750: #ddd7ca;
+  --color-ink-700: #cfc8b9;
+  --color-ink-600: #b3ab9c;
+  --color-ink-500: #8f8878;
+  --color-ink-400: #6f6959;
+  --color-ink-300: #4f4a3e;
+  --color-ink-200: #2e2b24;
+  --color-ink-100: #14120f;
+
+  /* 状态色改成印刷油墨的调子：饱和但不发光 */
+  --color-draft: #8a8478;
+  --color-doing: #1b4d8f;
+  --color-done: #2f6b3f;
+  --color-failed: #c8102e;
+  --color-parked: #9a6b12;
+  --color-bug: #c8102e;
+
+  --color-accent: #c8102e;
+  --color-accent-soft: #e0294a;
+
+  --font-sans:
+    'HelveticaNeue', 'Helvetica Neue', Helvetica, 'Noto Sans SC', 'Microsoft YaHei UI',
+    sans-serif;
+
+  --radius-widget: 2px;
+  --radius-card: 2px;
+
+  --glass-bg-top: rgba(20, 18, 15, 0.02);
+  --glass-bg-bottom: rgba(20, 18, 15, 0.008);
+  --glass-border: rgba(20, 18, 15, 0.13);
+  --glass-border-strong: rgba(20, 18, 15, 0.28);
+  --hairline: rgba(20, 18, 15, 0.1);
+  --shadow-widget: none;
+  --shadow-card: none;
+}
+
+/* 纸面：整窗铺实底，不要系统模糊，不要玻璃高光 */
+[data-theme='swiss'] .glass,
+[data-theme='swiss'] .glass-window,
+[data-theme='swiss'] .glass-solid,
+[data-theme='swiss'][data-glass='none'] .glass-window {
+  background-color: #faf8f3;
+  background-image: none;
+  border-color: var(--glass-border);
+  box-shadow: none;
+}
+[data-theme='swiss'] .glass-blur {
+  backdrop-filter: none;
+}
+[data-theme='swiss'] .glass::before,
+[data-theme='swiss'] .glass::after {
+  display: none;
+}
+
+/* 卡片：白纸 + 发丝边，无阴影 */
+[data-theme='swiss'] .card {
+  background: #ffffff;
+  border-color: rgba(20, 18, 15, 0.13);
+  box-shadow: none;
+}
+[data-theme='swiss'] .card:hover {
+  background: #ffffff;
+  border-color: rgba(20, 18, 15, 0.32);
+}
+
+/* 圆角归零（圆形元素保留） */
+[data-theme='swiss'] [class*='rounded-']:not([class*='rounded-full']) {
+  border-radius: 2px;
+}
+
+/* 去掉大投影，保留按下时的内阴影 */
+[data-theme='swiss'] [class*='shadow-[']:not([class*='inset']) {
+  box-shadow: none;
+}
+
+/* 滚动条改深色 */
+[data-theme='swiss'] .scroll {
+  scrollbar-color: rgba(20, 18, 15, 0.2) transparent;
+}
+[data-theme='swiss'] .scroll::-webkit-scrollbar-thumb {
+  background: rgba(20, 18, 15, 0.18);
+}
+[data-theme='swiss'] .scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 18, 15, 0.32);
+}
+
+/* 输入框焦点：Swiss 用实线方框，不用柔光 */
+[data-theme='swiss'] .focus-ring:focus-within {
+  border-color: #14120f;
+  background-color: #ffffff;
+  box-shadow: none;
+}
+
+/* 状态标签：从圆角胶囊改成方角标签 —— 无填充、细边、字母间距拉开 */
+[data-theme='swiss'] .chip {
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  padding: 1px 4px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+/* 分段控件：从灰色滑块改成下划线 Tab */
+[data-theme='swiss'] .seg {
+  background-color: transparent;
+  border-bottom: 1px solid var(--hairline);
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+}
+[data-theme='swiss'] .seg-pill {
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+/* 选中文本用信号红 */
+[data-theme='swiss'] ::selection {
+  background: color-mix(in oklab, #c8102e 22%, transparent);
+}
+
+/* 尊重系统减弱动效设置 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

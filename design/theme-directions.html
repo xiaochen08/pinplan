@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>PinPlan · 主题方向</title>
+<style>
+  :root {
+    --canvas-bg: #0a0a0b;
+    --label: #8a8a90;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--canvas-bg);
+    color: #e8e8ec;
+    font-family: "Helvetica Neue", Helvetica, "Microsoft YaHei UI", sans-serif;
+    padding: 34px 38px 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1 { font-size: 17px; font-weight: 600; letter-spacing: .01em; margin: 0 0 4px; }
+  .sub { font-size: 12px; color: var(--label); margin: 0 0 26px; letter-spacing: .02em; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 328px); gap: 34px; }
+
+  .cap { margin-bottom: 12px; }
+  .cap .name { font-size: 13px; font-weight: 600; letter-spacing: .04em; }
+  .cap .pitch { font-size: 11.5px; color: var(--label); margin-top: 3px; line-height: 1.45; }
+  .cap .kw { font-size: 10.5px; color: #6f6f76; margin-top: 5px; letter-spacing: .06em; }
+
+  /* ---------- 共用骨架 ---------- */
+  .widget { width: 328px; height: 468px; display: flex; flex-direction: column; overflow: hidden; }
+  .hd { display: flex; align-items: flex-start; padding: 14px 14px 10px; gap: 10px; }
+  .hd-l { flex: 1; min-width: 0; }
+  .date { line-height: 1.1; }
+  .wd { margin-left: 4px; }
+  .stats { margin-top: 4px; }
+  .pomo { display: flex; align-items: center; gap: 8px; margin: 0 14px 10px; padding: 8px 10px; }
+  .pomo-time { font-variant-numeric: tabular-nums; }
+  .pomo-sp { flex: 1; }
+  .tabs { display: flex; margin: 0 14px 8px; }
+  .tab { flex: 1; text-align: center; padding: 6px 0; }
+  .list { flex: 1; padding: 0 14px; display: flex; flex-direction: column; gap: 8px; }
+  .row-title { font-size: 12.5px; line-height: 1.35; }
+  .row-meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .add { margin: 10px 14px 14px; padding: 9px 10px; }
+
+  /* ================= A · Swiss Editorial ================= */
+  .A {
+    background: #f7f4ee; color: #14120f;
+    border: 1px solid #d8d2c4; border-radius: 0;
+    font-family: "Helvetica Neue", Helvetica, "Microsoft YaHei UI", sans-serif;
+  }
+  .A .date { font-size: 21px; font-weight: 700; letter-spacing: -.015em; }
+  .A .wd { font-size: 11.5px; color: #6b6558; font-weight: 400; }
+  .A .stats { font-size: 10.5px; color: #6b6558; letter-spacing: .1em; text-transform: uppercase; }
+  .A .ring {
+    width: 34px; height: 34px; border: 1px solid #14120f; border-radius: 50%;
+    display: grid; place-items: center; font-size: 11px; font-variant-numeric: tabular-nums;
+  }
+  .A .pomo { border-top: 1px solid #d8d2c4; border-bottom: 1px solid #d8d2c4; border-radius: 0; padding: 9px 0; margin: 0 14px 12px; }
+  .A .pomo-label { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: #6b6558; }
+  .A .pomo-time { font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
+  .A .pomo-state { font-size: 10.5px; color: #6b6558; }
+  .A .pomo-ctrl { font-size: 12px; color: #14120f; letter-spacing: .18em; }
+  .A .tabs { border-bottom: 1px solid #14120f; gap: 0; }
+  .A .tab { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; color: #6b6558; border: none; }
+  .A .tab.on { color: #14120f; font-weight: 700; box-shadow: inset 0 -2px 0 #14120f; }
+  .A .list { padding-top: 12px; gap: 0; }
+  .A .row { border-bottom: 1px solid #d8d2c4; border-radius: 0; background: none; padding: 11px 0 12px; }
+  .A .row-title { font-weight: 500; }
+  .A .row-meta { font-size: 10.5px; color: #6b6558; letter-spacing: .05em; }
+  .A .chip { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+  .A .chip::before { content: ""; width: 7px; height: 7px; background: currentColor; display: inline-block; }
+  .A .chip.doing { color: #14120f; }
+  .A .chip.parked { color: #8a6d1f; }
+  .A .add { border: 1px solid #14120f; border-radius: 0; font-size: 12px; color: #6b6558; }
+
+  /* ================= B · Dieter Rams 仪器面板 ================= */
+  .B {
+    background: #1c1c1e; color: #ededed;
+    border: 1px solid #2e2e33; border-radius: 5px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 2px 0 rgba(0,0,0,.5);
+    font-family: "Helvetica Neue", Helvetica, "Microsoft YaHei UI", sans-serif;
+  }
+  .B .date { font-size: 17px; font-weight: 500; letter-spacing: -.005em; }
+  .B .wd { font-size: 11px; color: #8a8a8f; font-weight: 400; }
+  .B .stats { font-size: 11px; color: #8a8a8f; }
+  .B .ring {
+    width: 34px; height: 34px; border: 1px solid #3a3a40; border-radius: 50%;
+    display: grid; place-items: center; font-size: 11px; font-variant-numeric: tabular-nums; color: #b8b8be;
+  }
+  .B .pomo { background: #232326; border: 1px solid #2e2e33; border-radius: 4px; }
+  .B .pomo-label { font-size: 11px; color: #b8b8be; }
+  .B .pomo-time { font-size: 16px; font-weight: 500; }
+  .B .pomo-state { font-size: 10.5px; color: #7a7a80; }
+  .B .pomo-ctrl { font-size: 12px; color: #b8b8be; letter-spacing: .16em; }
+  .B .tabs { background: #232326; border: 1px solid #2e2e33; border-radius: 4px; padding: 2px; }
+  .B .tab { font-size: 11.5px; color: #8a8a8f; border-radius: 3px; }
+  .B .tab.on { background: #33333a; color: #ededed; }
+  .B .list { padding-top: 10px; }
+  .B .row { background: #232326; border: 1px solid #2e2e33; border-radius: 4px; padding: 10px 11px; }
+  .B .row-title { font-weight: 500; }
+  .B .row-meta { font-size: 10.5px; color: #8a8a8f; }
+  .B .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; }
+  .B .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 5px currentColor; }
+  .B .chip.doing { color: #e4572e; }
+  .B .chip.parked { color: #e8b100; }
+  .B .add { background: #232326; border: 1px solid #2e2e33; border-radius: 4px; font-size: 12px; color: #7a7a80; }
+
+  /* ================= C · Brutalist 终端 ================= */
+  .C {
+    background: #000; color: #e8e8e8;
+    border: 1px solid #3a3a3a; border-radius: 0;
+    font-family: Consolas, "JetBrains Mono", "Microsoft YaHei UI", monospace;
+  }
+  .C .date { font-size: 15px; font-weight: 700; }
+  .C .wd { font-size: 11px; color: #7a7a7a; }
+  .C .stats { font-size: 11px; color: #7a7a7a; }
+  .C .ring {
+    width: 34px; height: 34px; border: 1px solid #3a3a3a; border-radius: 0;
+    display: grid; place-items: center; font-size: 11px;
+  }
+  .C .pomo { border: 1px solid #3a3a3a; border-radius: 0; padding: 8px 10px; }
+  .C .pomo-label { font-size: 11px; color: #7a7a7a; }
+  .C .pomo-time { font-size: 15px; font-weight: 700; }
+  .C .pomo-state { font-size: 10.5px; color: #7a7a7a; }
+  .C .pomo-ctrl { font-size: 12px; color: #e8e8e8; letter-spacing: .1em; }
+  .C .tabs { gap: 0; }
+  .C .tab { border: 1px solid #3a3a3a; border-right: none; font-size: 11.5px; color: #7a7a7a; }
+  .C .tab:last-child { border-right: 1px solid #3a3a3a; }
+  .C .tab.on { background: #e8e8e8; color: #000; }
+  .C .list { padding-top: 10px; }
+  .C .row { border: 1px solid #3a3a3a; border-radius: 0; padding: 9px 10px; }
+  .C .row-title { font-weight: 400; }
+  .C .row-meta { font-size: 10.5px; color: #7a7a7a; }
+  .C .chip { font-size: 10px; letter-spacing: .08em; }
+  .C .chip::before { content: "["; }
+  .C .chip::after { content: "]"; }
+  .C .chip.doing { color: #00e5a0; }
+  .C .chip.parked { color: #e8b100; }
+  .C .add { border: 1px solid #3a3a3a; border-radius: 0; font-size: 12px; color: #7a7a7a; }
+
+  .foot { margin-top: 26px; font-size: 11.5px; color: #6f6f76; letter-spacing: .02em; }
+</style>
+</head>
+<body>
+
+  <h1>PinPlan · 主题方向（选型用）</h1>
+  <p class="sub">三个方向来自三个不同流派 · 同一份内容、同一套结构，只换视觉系统</p>
+
+  <div class="grid">
+
+    <!-- A -->
+    <div>
+      <div class="cap">
+        <div class="name">A · Swiss Editorial</div>
+        <div class="pitch">排印讲究的工程手账：米白纸面、近黑字、发丝分隔线，只留一个信号红。</div>
+        <div class="kw">结构 · 单色 · 网格 · 安静</div>
+      </div>
+      <div class="widget A">
+        <div class="hd">
+          <div class="hd-l">
+            <div class="date">9月9日<span class="wd">周三</span></div>
+            <div class="stats">1 进行 · 0 成功 · 1 搁置</div>
+          </div>
+          <div class="ring">0</div>
+        </div>
+        <div class="pomo">
+          <span class="pomo-label">专注</span>
+          <span class="pomo-time">25:00</span>
+          <span class="pomo-state">已暂停</span>
+          <span class="pomo-sp"></span>
+          <span class="pomo-ctrl">▷ ⇥ ⟲</span>
+        </div>
+        <div class="tabs"><div class="tab on">计划 2</div><div class="tab">BUG</div></div>
+        <div class="list">
+          <div class="row">
+            <div class="row-title">给加水印、加上光效果和胶片素材的一个功能</div>
+            <div class="row-meta"><span class="chip doing">进行中</span><span>18m</span></div>
+          </div>
+          <div class="row">
+            <div class="row-title">给软件接入 AI 在线生图的功能</div>
+            <div class="row-meta"><span class="chip parked">搁置</span><span>17 分钟前</span></div>
+          </div>
+        </div>
+        <div class="add">＋ 记一条计划…</div>
+      </div>
+    </div>
+
+    <!-- B -->
+    <div>
+      <div class="cap">
+        <div class="name">B · Dieter Rams 仪器面板</div>
+        <div class="pitch">像一台 Braun 设备：石墨灰机身、克制的字重，只在有意义的地方亮一盏小灯。</div>
+        <div class="kw">功能 · 触感 · 不张扬 · 耐久</div>
+      </div>
+      <div class="widget B">
+        <div class="hd">
+          <div class="hd-l">
+            <div class="date">9月9日<span class="wd">周三</span></div>
+            <div class="stats">1 进行 · 0 成功 · 1 搁置</div>
+          </div>
+          <div class="ring">0</div>
+        </div>
+        <div class="pomo">
+          <span class="pomo-label">专注</span>
+          <span class="pomo-time">25:00</span>
+          <span class="pomo-state">已暂停</span>
+          <span class="pomo-sp"></span>
+          <span class="pomo-ctrl">▷ ⇥ ⟲</span>
+        </div>
+        <div class="tabs"><div class="tab on">计划 2</div><div class="tab">BUG</div></div>
+        <div class="list">
+          <div class="row">
+            <div class="row-title">给加水印、加上光效果和胶片素材的一个功能</div>
+            <div class="row-meta"><span class="chip doing">进行中</span><span>18m</span></div>
+          </div>
+          <div class="row">
+            <div class="row-title">给软件接入 AI 在线生图的功能</div>
+            <div class="row-meta"><span class="chip parked">搁置</span><span>17 分钟前</span></div>
+          </div>
+        </div>
+        <div class="add">＋ 记一条计划…</div>
+      </div>
+    </div>
+
+    <!-- C -->
+    <div>
+      <div class="cap">
+        <div class="name">C · Brutalist 终端</div>
+        <div class="pitch">像 Bloomberg 终端 / Are.na：等宽字、1px 硬边框、零圆角，信息密度拉满。</div>
+        <div class="kw">未修饰 · 等宽 · 文本密集 · 直白</div>
+      </div>
+      <div class="widget C">
+        <div class="hd">
+          <div class="hd-l">
+            <div class="date">9月9日<span class="wd">周三</span></div>
+            <div class="stats">1 进行 · 0 成功 · 1 搁置</div>
+          </div>
+          <div class="ring">0</div>
+        </div>
+        <div class="pomo">
+          <span class="pomo-label">专注</span>
+          <span class="pomo-time">25:00</span>
+          <span class="pomo-state">已暂停</span>
+          <span class="pomo-sp"></span>
+          <span class="pomo-ctrl">▷ ⇥ ⟲</span>
+        </div>
+        <div class="tabs"><div class="tab on">计划 2</div><div class="tab">BUG</div></div>
+        <div class="list">
+          <div class="row">
+            <div class="row-title">给加水印、加上光效果和胶片素材的一个功能</div>
+            <div class="row-meta"><span class="chip doing">进行中</span><span>18m</span></div>
+          </div>
+          <div class="row">
+            <div class="row-title">给软件接入 AI 在线生图的功能</div>
+            <div class="row-meta"><span class="chip parked">搁置</span><span>17 分钟前</span></div>
+          </div>
+        </div>
+        <div class="add">＋ 记一条计划…</div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="foot">选定方向后，我再把它做成 PinPlan 里可切换的主题（设置 → 外观）。</p>
+</body>
+</html>
