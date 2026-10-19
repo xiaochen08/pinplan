@@ -14,8 +14,9 @@ import { Icon } from '@/components/ui/Icon'
  * 图片会先等比压缩再入库（见 lib/images.ts），避免库里塞满几 MB 的截图。
  * 点缩略图看大图，悬停右上角可删除。
  */
-export function ImageStrip({ entity, id }: { entity: 'plan' | 'bug'; id: number }) {
-  const notify = useStore((s) => s.notify)
+export function ImageStrip({ entity, id, onNotify }: { entity: 'plan' | 'bug'; id: number; onNotify?: (text: string, tone?: 'ok' | 'warn' | 'bad' | 'info') => void }) {
+  const legacyNotify = useStore((s) => s.notify)
+  const notify = onNotify ?? legacyNotify
   const refreshCounts = useStore((s) => s.refreshAttachmentCounts)
   const [items, setItems] = useState<Attachment[]>([])
   const [busy, setBusy] = useState(false)

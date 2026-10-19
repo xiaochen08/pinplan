@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@500;600;700&display=swap');
+@import 'tailwindcss';
+
+/* ============================================================
+   PinPlan · Ledger
+   A developer's lab notebook: warm paper, hairline rules,
+   mono timestamps, and ink stamps for outcomes. One loud colour
+   — vermilion — is reserved for the pin and for failure,
+   because admitting something died is the point of the tool.
+   ============================================================ */
+
+:root,
+[data-theme='paper'] {
+  color-scheme: light;
+  --desk: #e7e1d3;
+  --desk-dot: #d3cab6;
+  --sheet: #fbf9f4;
+  --sheet-2: #f5f1e8;
+  --sheet-3: #eee8dc;
+  --rule: #e2dbcc;
+  --rule-strong: #cfc5b1;
+  --ink: #1d1b17;
+  --ink-2: #4b473f;
+  --ink-3: #7f796d;
+  --ink-4: #aaa395;
+  --on-ink: #fbf9f4;
+  --seal: #d2452b;
+
+  --s-draft: #8a8476;
+  --s-doing: #2d4f9e;
+  --s-done: #2f7a55;
+  --s-failed: #d2452b;
+  --s-parked: #b07a1e;
+  --s-dropped: #9a9486;
+  --s-bug: #b4305a;
+
+  --shadow-window: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 0 0 1px rgba(60, 48, 25, 0.12),
+    0 2px 4px rgba(60, 48, 25, 0.05), 0 18px 48px -12px rgba(60, 48, 25, 0.28);
+  --shadow-pop: 0 0 0 1px rgba(60, 48, 25, 0.12), 0 12px 32px -8px rgba(60, 48, 25, 0.32);
+}
+
+[data-theme='night'] {
+  color-scheme: dark;
+  --desk: #0d0d0b;
+  --desk-dot: #22211d;
+  --sheet: #191815;
+  --sheet-2: #1f1e1a;
+  --sheet-3: #272520;
+  --rule: #2c2a25;
+  --rule-strong: #3b3832;
+  --ink: #ece6d8;
+  --ink-2: #bdb6a6;
+  --ink-3: #8a8476;
+  --ink-4: #5f5a50;
+  --on-ink: #191815;
+  --seal: #ec6a48;
+
+  --s-draft: #8a8476;
+  --s-doing: #8aa4e8;
+  --s-done: #70bf92;
+  --s-failed: #ec6a48;
+  --s-parked: #dcaa48;
+  --s-dropped: #6f6a5f;
+  --s-bug: #e57399;
+
+  --shadow-window: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 24px 60px -12px rgba(0, 0, 0, 0.7);
+  --shadow-pop: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px -8px rgba(0, 0, 0, 0.7);
+}
+
+@theme inline {
+  --color-desk: var(--desk);
+  --color-sheet: var(--sheet);
+  --color-sheet-2: var(--sheet-2);
+  --color-sheet-3: var(--sheet-3);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+  --color-on-ink: var(--on-ink);
+  --color-seal: var(--seal);
+  --color-draft: var(--s-draft);
+  --color-doing: var(--s-doing);
+  --color-done: var(--s-done);
+  --color-failed: var(--s-failed);
+  --color-parked: var(--s-parked);
+  --color-dropped: var(--s-dropped);
+  --color-bug: var(--s-bug);
+
+  --font-sans: 'Inter', 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei UI', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', 'Noto Serif SC', 'Songti SC', serif;
+  --font-cn: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+
+  --shadow-window: var(--shadow-window);
+  --shadow-pop: var(--shadow-pop);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--seal) 22%, transparent);
+}
+
+.desk {
+  background-color: var(--desk);
+  background-image: radial-gradient(var(--desk-dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ruled-paper backdrop for the main column. */
+.ruled {
+  background-image: linear-gradient(to right, transparent 47px, color-mix(in oklab, var(--seal) 28%, transparent) 47px, color-mix(in oklab, var(--seal) 28%, transparent) 48px, transparent 48px);
+}
+
+.scroll {
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+
+.autosize {
+  field-sizing: content;
+}
+
+@layer base {
+  textarea,
+  input,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--ink-4);
+  }
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--seal) 60%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.breathe {
+  animation: breathe var(--rhythm, 2.6s) ease-in-out infinite;
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.ripple {
+  animation: ripple 1.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+
+@keyframes countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .breathe,
+  .ripple {
+    animation: none;
+  }
+}

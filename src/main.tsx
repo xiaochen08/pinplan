@@ -1,9 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import './styles/global.css'
-import { WidgetApp } from './windows/WidgetApp'
-import { PopupApp } from './windows/PopupApp'
-import { DockApp } from './windows/DockApp'
 
 const label = getCurrentWindow().label
 const root = document.getElementById('root')
@@ -13,9 +10,16 @@ const root = document.getElementById('root')
 // 需要自定义右键菜单的地方（如边缘小钉）在自己的 onContextMenu 里照常处理。
 document.addEventListener('contextmenu', (e) => e.preventDefault())
 
-if (root) {
+async function mount() {
+  if (!root) return
   // 刻意不用 StrictMode：窗口级副作用（事件订阅、计时器）在开发模式下
   // 会被双调用，容易产生重复监听和重复写入。
-  const App = label === 'popup' ? PopupApp : label === 'dock' ? DockApp : WidgetApp
+  // 分开加载主窗样式，避免 Figma 的纸面 CSS 改变独立巡检窗和边缘小钉。
+  const App = label === 'popup'
+    ? (await import('./windows/PopupApp')).PopupApp
+    : label === 'dock'
+      ? (await import('./windows/DockApp')).DockApp
+      : (await import('./windows/WidgetApp')).WidgetApp
   createRoot(root).render(<App />)
 }
+void mount()

@@ -43,6 +43,11 @@ export function recentEvents(limit = 60): Promise<EventRow[]> {
   )
 }
 
+/** 主窗日志和导出需要完整历史，详情不应受最近条数限制。 */
+export function listAllEvents(): Promise<EventRow[]> {
+  return select<EventRow>(`SELECT * FROM event ORDER BY created_at DESC, id DESC`)
+}
+
 /* ==================================================================
    计划
    ================================================================== */
@@ -148,7 +153,7 @@ export async function setPlanStatus(
     if (!cur.started_at) patch.started_at = ts
     patch.finished_at = null
   }
-  if (next === 'done' || next === 'failed') {
+  if (next === 'done' || next === 'failed' || next === 'dropped') {
     patch.finished_at = ts
   }
   await updatePlan(id, patch)
@@ -327,6 +332,7 @@ export interface Settings {
   pomodoro_work: number
   pomodoro_break: number
   checkin_enabled: boolean
+  checkin_interval: number
   quiet_start: string
   quiet_end: string
   autostart: boolean
@@ -345,6 +351,7 @@ export const DEFAULT_SETTINGS: Settings = {
   pomodoro_work: 25,
   pomodoro_break: 5,
   checkin_enabled: true,
+  checkin_interval: 45,
   quiet_start: '23:00',
   quiet_end: '09:00',
   autostart: false,
@@ -376,6 +383,7 @@ export async function loadSettings(): Promise<Settings> {
     pomodoro_work: num('pomodoro_work', DEFAULT_SETTINGS.pomodoro_work),
     pomodoro_break: num('pomodoro_break', DEFAULT_SETTINGS.pomodoro_break),
     checkin_enabled: bool('checkin_enabled', DEFAULT_SETTINGS.checkin_enabled),
+    checkin_interval: raw.checkin_interval === '0' ? 0 : num('checkin_interval', DEFAULT_SETTINGS.checkin_interval),
     quiet_start: raw.quiet_start ?? DEFAULT_SETTINGS.quiet_start,
     quiet_end: raw.quiet_end ?? DEFAULT_SETTINGS.quiet_end,
     autostart: bool('autostart', DEFAULT_SETTINGS.autostart),
